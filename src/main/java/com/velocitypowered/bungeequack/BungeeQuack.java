@@ -203,7 +203,7 @@ public class BungeeQuack implements MessageHandler {
         Map<ServerInfo, ServerConnection> connections = new HashMap<>();
         for (Player player : server.getAllPlayers()) {
             Optional<ServerConnection> connection = player.getCurrentServer();
-            connection.ifPresent(serverConnection -> connections.put(serverConnection.getServerInfo(), serverConnection));
+            connection.ifPresent(serverConnection -> connections.putIfAbsent(serverConnection.getServerInfo(), serverConnection));
         }
         return ImmutableList.copyOf(connections.values());
     }
