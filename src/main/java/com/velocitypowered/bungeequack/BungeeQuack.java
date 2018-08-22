@@ -1,6 +1,7 @@
 package com.velocitypowered.bungeequack;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -16,9 +17,7 @@ import com.velocitypowered.api.server.ServerInfo;
 import net.kyori.text.serializer.ComponentSerializers;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Plugin(id = "bungeequack", name = "BungeeQuack", version = "1.0-SNAPSHOT",
@@ -54,12 +53,23 @@ public class BungeeQuack implements MessageHandler {
         String subChannel = in.readUTF();
 
         if (subChannel.equals("ForwardToPlayer")) {
-            // TODO: implement
-            // Takes in player (string), channel, length of message (short), byte array of message.
+            server.getPlayer(in.readUTF())
+                    .flatMap(Player::getCurrentServer)
+                    .ifPresent(server -> {
+                        server.sendPluginMessage(identifier, prepareForwardMessage(in));
+                    });
         }
         if (subChannel.equals("Forward")) {
-            // TODO: Implement
-            // Takes in server (string) - ALL sends to all servers aside from this one, channel, length of message (short), byte array of message.
+            String target = in.readUTF();
+            byte[] toForward = prepareForwardMessage(in);
+
+            if (target.equals("ALL")) {
+                for (ServerConnection conn : findConnectionsToServers()) {
+                    conn.sendPluginMessage(identifier, toForward);
+                }
+            } else {
+                findSomeConnection(target).ifPresent(conn -> conn.sendPluginMessage(identifier, toForward));
+            }
         }
         if (subChannel.equals("Connect")) {
             Optional<ServerInfo> info = server.getServerInfo(in.readUTF());
@@ -167,5 +177,34 @@ public class BungeeQuack implements MessageHandler {
             connection.sendPluginMessage(identifier, data);
         }
         return ForwardStatus.HANDLED;
+    }
+
+    private byte[] prepareForwardMessage(ByteArrayDataInput in) {
+        String channel = in.readUTF();
+        short messageLength = in.readShort();
+        byte[] message = new byte[messageLength];
+        in.readFully(message);
+
+        ByteArrayDataOutput forwarded = ByteStreams.newDataOutput();
+        forwarded.writeUTF(channel);
+        forwarded.writeShort(messageLength);
+        forwarded.write(message);
+        return forwarded.toByteArray();
+    }
+
+    private Optional<ServerConnection> findSomeConnection(String serverName) {
+        return server.getAllPlayers().stream()
+                .map(p -> p.getCurrentServer().filter(s -> s.getServerInfo().getName().equalsIgnoreCase(serverName)))
+                .findAny()
+                .flatMap(o -> o);
+    }
+
+    private List<ServerConnection> findConnectionsToServers() {
+        Map<ServerInfo, ServerConnection> connections = new HashMap<>();
+        for (Player player : server.getAllPlayers()) {
+            Optional<ServerConnection> connection = player.getCurrentServer();
+            connection.ifPresent(serverConnection -> connections.put(serverConnection.getServerInfo(), serverConnection));
+        }
+        return ImmutableList.copyOf(connections.values());
     }
 }
