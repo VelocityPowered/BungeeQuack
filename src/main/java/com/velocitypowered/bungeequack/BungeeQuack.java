@@ -161,7 +161,7 @@ public class BungeeQuack implements MessageHandler {
             });
         }
 
-        // Check we haven't set out to null, and we have written data, if so reply back back along the BungeeCord channel
+        // If we wrote data, reply back on the BungeeCord channel
         byte[] data = out.toByteArray();
         if (data.length > 0) {
             connection.sendPluginMessage(identifier, data);
