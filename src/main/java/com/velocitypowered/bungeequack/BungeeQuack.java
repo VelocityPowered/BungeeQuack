@@ -195,6 +195,7 @@ public class BungeeQuack implements MessageHandler {
     private Optional<ServerConnection> findSomeConnection(String serverName) {
         return server.getAllPlayers().stream()
                 .map(p -> p.getCurrentServer().filter(s -> s.getServerInfo().getName().equalsIgnoreCase(serverName)))
+                .filter(Optional::isPresent)
                 .findAny()
                 .flatMap(o -> o);
     }
