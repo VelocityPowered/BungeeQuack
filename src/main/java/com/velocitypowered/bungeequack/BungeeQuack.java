@@ -92,13 +92,14 @@ public class BungeeQuack {
         }
         if (subChannel.equals("PlayerCount")) {
             String target = in.readUTF();
-            out.writeUTF("PlayerCount");
             if (target.equals("ALL")) {
+                out.writeUTF("PlayerCount");
                 out.writeUTF("ALL");
                 out.writeInt(server.getPlayerCount());
             } else {
                 server.getServer(target).ifPresent(rs -> {
                     int playersOnServer = rs.getPlayersConnected().size();
+                    out.writeUTF("PlayerCount");
                     out.writeUTF(rs.getServerInfo().getName());
                     out.writeInt(playersOnServer);
                 });
@@ -106,13 +107,14 @@ public class BungeeQuack {
         }
         if (subChannel.equals("PlayerList")) {
             String target = in.readUTF();
-            out.writeUTF("PlayerList");
             if (target.equals("ALL")) {
+                out.writeUTF("PlayerList");
                 out.writeUTF("ALL");
-                out.writeUTF(server.getAllPlayers().stream().map(Player::getUsername).collect(Collectors.joining(",")));
+                out.writeUTF(server.getAllPlayers().stream().map(Player::getUsername).collect(Collectors.joining(", ")));
             } else {
                 server.getServer(target).ifPresent(info -> {
-                    String playersOnServer = info.getPlayersConnected().stream().map(Player::getUsername).collect(Collectors.joining(","));
+                    String playersOnServer = info.getPlayersConnected().stream().map(Player::getUsername).collect(Collectors.joining(", "));
+                    out.writeUTF("PlayerList");
                     out.writeUTF(info.getServerInfo().getName());
                     out.writeUTF(playersOnServer);
                 });
@@ -120,7 +122,7 @@ public class BungeeQuack {
         }
         if (subChannel.equals("GetServers")) {
             out.writeUTF("GetServers");
-            out.writeUTF(server.getAllServers().stream().map(s -> s.getServerInfo().getName()).collect(Collectors.joining(",")));
+            out.writeUTF(server.getAllServers().stream().map(s -> s.getServerInfo().getName()).collect(Collectors.joining(", ")));
         }
         if (subChannel.equals("Message")) {
             String target = in.readUTF();
