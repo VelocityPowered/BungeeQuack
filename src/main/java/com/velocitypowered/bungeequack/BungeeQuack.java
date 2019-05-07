@@ -14,7 +14,7 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.*;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.UuidUtils;
-import net.kyori.text.serializer.ComponentSerializers;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -129,11 +129,11 @@ public class BungeeQuack {
             String message = in.readUTF();
             if (target.equals("ALL")) {
                 for (Player player : server.getAllPlayers()) {
-                    player.sendMessage(ComponentSerializers.LEGACY.deserialize(message));
+                    player.sendMessage(LegacyComponentSerializer.INSTANCE.deserialize(message));
                 }
             } else {
                 server.getPlayer(target).ifPresent(player -> {
-                    player.sendMessage(ComponentSerializers.LEGACY.deserialize(message));
+                    player.sendMessage(LegacyComponentSerializer.INSTANCE.deserialize(message));
                 });
             }
         }
@@ -163,7 +163,7 @@ public class BungeeQuack {
         if (subChannel.equals("KickPlayer")) {
             server.getPlayer(in.readUTF()).ifPresent(player -> {
                 String kickReason = in.readUTF();
-                player.disconnect(ComponentSerializers.PLAIN.deserialize(kickReason));
+                player.disconnect(LegacyComponentSerializer.INSTANCE.deserialize(kickReason));
             });
         }
 

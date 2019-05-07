@@ -18,5 +18,5 @@ repositories {
 }
 
 dependencies {
-    compile 'com.velocitypowered:velocity-api:1.0-SNAPSHOT'
+    compile 'com.velocitypowered:velocity-api:1.0.0-SNAPSHOT'
 }
