@@ -87,7 +87,7 @@ public class BungeeQuack {
         }
         if (subChannel.equals("IP")) {
             out.writeUTF("IP");
-            out.writeUTF(connection.getPlayer().getRemoteAddress().getAddress().getHostAddress());
+            out.writeUTF(connection.getPlayer().getRemoteAddress().getHostString());
             out.writeInt(connection.getPlayer().getRemoteAddress().getPort());
         }
         if (subChannel.equals("PlayerCount")) {
