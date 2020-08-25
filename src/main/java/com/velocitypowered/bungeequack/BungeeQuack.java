@@ -15,6 +15,7 @@ import com.velocitypowered.api.proxy.messages.*;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.UuidUtils;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.text.serializer.plain.PlainComponentSerializer;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -90,6 +91,14 @@ public class BungeeQuack {
             out.writeUTF(connection.getPlayer().getRemoteAddress().getHostString());
             out.writeInt(connection.getPlayer().getRemoteAddress().getPort());
         }
+        if (subChannel.equals("IPOther")) {
+            server.getPlayer(in.readUTF()).ifPresent(player -> {
+                out.writeUTF("IPOther");
+                out.writeUTF(player.getUsername());
+                out.writeUTF(player.getRemoteAddress().getHostString());
+                out.writeUTF(player.getRemoteAddress().getPort());
+            });
+        }
         if (subChannel.equals("PlayerCount")) {
             String target = in.readUTF();
             if (target.equals("ALL")) {
@@ -134,6 +143,19 @@ public class BungeeQuack {
             } else {
                 server.getPlayer(target).ifPresent(player -> {
                     player.sendMessage(LegacyComponentSerializer.INSTANCE.deserialize(message));
+                });
+            }
+        }
+        if (subChannel.equals("MessageRaw")) {
+            String target = in.readUTF();
+            String rawMessage = in.readUTF();
+            if (target.equals("ALL")) {
+                for (Player player : server.getAllPlayers()) {
+                    player.sendMessage(PlainComponentSerializer.INSTANCE.deserialize(rawMessage));
+                }
+            } else {
+                server.getPlayer(target).ifPresent(player -> {
+                    player.sendMessage(PlainComponentSerializer.INSTANCE.deserialize(rawMessage));
                 });
             }
         }
