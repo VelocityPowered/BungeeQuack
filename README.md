@@ -1,3 +1,5 @@
+# NOTE: This plugin is deprecated with Velocity 1.1.0's native BungeeCord plugin messaging channel support.
+
 # BungeeQuack
 
 _If it talks like a BungeeCord, and if it quacks like a BungeeCord, then it's gotta be BungeeCord._
